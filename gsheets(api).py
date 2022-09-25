@@ -30,7 +30,7 @@ console = Console()
 def api_timeout(sec):
     seconds = [f"{n}" for n in range(1, int(sec) // 10)]
     with console.status("[bold blue]API timeout[blink]..."):
-        console.log(f"[bold blue]API timeout {sec} seconds")
+        console.log(f"[bold blue]API timeout {sec} seconds...")
         while seconds:
             s = seconds.pop(0)
             time.sleep(10)
@@ -66,22 +66,21 @@ scope = ["https://spreadsheets.google.com/feeds",
          "https://www.googleapis.com/auth/drive.file",
          "https://www.googleapis.com/auth/drive"]
 credentials = service_account.Credentials.from_service_account_file(
-    "credentials.json")
+    "credentials.json")  # Service credentials for your Google account API
 scoped_credentials = credentials.with_scopes(scope)
 client = gspread.authorize(scoped_credentials)
 
 """ Setting up a worksheet """
 sheet = client.open_by_url(
-    'https://docs.google.com/spreadsheets/d'
-    '/1pNHiTmrgEBjON2kh_KEzIsDIqPTKIkaQ6H0lr29lhYM/edit#gid=1647235932')  #
+    'https://docs.google.com/spreadsheets/d/1_N-zgQqld-hZZ-ZybK-owxTLpXXfjwZHsw7TY8BtJjo/edit#gid=1954731353')  #
 # Opening a spreadsheet by url
-worksheetName = '3 курс Менеджмент'
+worksheetName = '4 курс менеджмент'
 worksheet = sheet.worksheet(
     worksheetName)  # Selecting a worksheet by its name
 
 """ Main part of the code """
 regex_numbers = re.compile(
-    '([0-9][0-9]-апр.|[0-9]-апр.)')  # Creating a rule for finder
+    f'([0-9][0-9]-сент.|[0-9]-сент.|[0-9][0-9]-окт.|[0-9]-окт.)')  # Creating a rule for finder
 dates = worksheet.findall(
     regex_numbers)  # Listing all dates in the worksheet using our rule
 regex_time = re.compile(
@@ -127,16 +126,17 @@ with console.status("[bold green]Понедельник",
                     spinner="aesthetic"):
     while row < secondDay - 1:
         row_value = worksheet.row_values(row)
-        if row_value[3] == gn:
+        if row_value[3] == gn or any("лек." in s for s in row_value) and \
+                row_value[3] == ' ':
             firstDay_lessons.append(row_value)
             i = 0
             t = 0
             while i < len(firstDay_lessons):
                 del firstDay_lessons[i][0:2]
                 filtered = filter(lambda nonempty: nonempty != ''
-                                  and nonempty != ' '
-                                  and nonempty != gn
-                                  and nonempty != '1',
+                                                   and nonempty != ' '
+                                                   and nonempty != gn
+                                                   and nonempty != '1',
                                   firstDay_lessons[t])
                 t = t + 1
                 i = i + 1
@@ -163,7 +163,8 @@ with console.status("[bold green]Вторник",
                     spinner="aesthetic"):
     while row < thirdDay - 1:
         row_value = worksheet.row_values(row)
-        if row_value[3] == gn or row_value[3] == "1":
+        if row_value[3] == gn or "Губанова Елена Евгеньевна" in row_value or any("лек." in s for s in row_value) and \
+                row_value[3] == ' ':
             secondDay_lessons.append(row_value)
             i = 0
             t = 0
@@ -191,7 +192,6 @@ info("Вторник посчитан")
 
 """ Third Day """
 api_timeout(60)
-
 row = thirdDay
 thirdDay_list = []  # List of info about lessons on third day
 thirdDay_lessons = []  # Lessons on third day
@@ -200,8 +200,8 @@ with console.status("[bold green]Среда",
                     spinner="aesthetic"):
     while row < fourthDay - 1:
         row_value = worksheet.row_values(row)
-        if row_value[3] == gn or row_value[3] == "1" \
-                or row_value[4] == "Физическая культура и спорт ":
+        if row_value[3] == gn or row_value[3] == "1" or any("лек." in s for s in row_value) and \
+                row_value[3] == ' ':
             thirdDay_lessons.append(row_value)
             i = 0
             t = 0
@@ -255,7 +255,8 @@ with console.status("[bold green]Четверг",
                     spinner="aesthetic"):
     while row < fifthDay - 1:
         row_value = worksheet.row_values(row)
-        if row_value[3] == gn or row_value[3] == "1":
+        if row_value[3] == gn or "Губанова Елена Евгеньевна" in row_value or any("лек." in s for s in row_value) and \
+                row_value[3] == ' ':
             fourthDay_lessons.append(row_value)
             i = 0
             t = 0
@@ -291,7 +292,8 @@ with console.status("[bold green]Пятница",
                     spinner="aesthetic"):
     while row < sixthDay - 1:
         row_value = worksheet.row_values(row)
-        if row_value[3] == gn:
+        if row_value[3] == gn or any("лек." in s for s in row_value) and \
+                row_value[3] == ' ':
             fifthDay_lessons.append(row_value)
             i = 0
             t = 0
@@ -345,8 +347,8 @@ with console.status("[bold green]Суббота",
                     spinner="aesthetic"):
     while row <= lessonTimeList[-1].row:
         row_value = worksheet.row_values(row)
-        if row_value[3] == gn or row_value[3] == "1" \
-                or row_value[4] == "Физическая культура и спорт ":
+        if row_value[3] == gn or "Губанова Елена Евгеньевна" in row_value or any("лек." in s for s in row_value) and \
+                row_value[3] == ' ':
             sixthDay_lessons.append(row_value)
             i = 0
             t = 0
@@ -379,3 +381,6 @@ with open('data.pkl', 'wb') as f:
     pickle.dump(data, f)
 
 console.log("[bold green] Process finished.")
+
+if __name__ == '__main__':
+    exec(open("gcalendar(api).py").read())

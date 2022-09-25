@@ -63,20 +63,22 @@ while lesson_day < len(imported_data):
     lesson_id = 1  # Not 0 to avoid copying a date
     if imported_data[lesson_day][0] != "None":
         while lesson_id <= len(imported_data[lesson_day]) - 1:
-            print(lesson_day, lesson_id)
+            print(f'День недели: {lesson_day + 1}-й, занятие: {lesson_id}-е')
             d = imported_data[lesson_day][
                 0]  # Retrieving date and lesson start time and formatting it
             t_start = imported_data[lesson_day][lesson_id][0][0:2] + " " + \
                       imported_data[lesson_day][lesson_id][0][3:5]
+            # print(t_start)
             t_end = imported_data[lesson_day][lesson_id][0][6:8] + " " + \
                     imported_data[lesson_day][lesson_id][0][9:]
-            start_time = datetime.datetime.strptime(d + " " + t_start,
-                                                    "%d-%b. %H %M")
-            start_time = start_time.replace(year=2022)
+            # print(t_end)
+            start_time = datetime.datetime.strptime(d[:-6] + " " + t_start,
+                                                    "%d %H %M")
+            start_time = start_time.replace(year=2022, month=9)
             start_time_ready = start_time.strftime("%Y-%m-%dT%H:%M:%S")
-            end_time = datetime.datetime.strptime(d + " " + t_end,
-                                                  "%d-%b. %H %M")
-            end_time = end_time.replace(year=2022)
+            end_time = datetime.datetime.strptime(d[:-6] + " " + t_end,
+                                                  "%d %H %M")
+            end_time = end_time.replace(year=2022, month=9)
             end_time_ready = end_time.strftime("%Y-%m-%dT%H:%M:%S")
 
             lesson_name = imported_data[lesson_day][lesson_id][
@@ -86,9 +88,11 @@ while lesson_day < len(imported_data):
                 2]  # Retrieving professor name
             if lesson_name == "Физическая культура и спорт ":
                 lesson_location = "Волейбольный зал"
-            elif lesson_name == "Business English":
-                lesson_location = "Дистанционно"
-            elif lesson_name == "Испанский язык":
+            elif lesson_name == "Business English" and lesson_day == 3:
+                lesson_location = "Zoom 204 856 2717"
+                lesson_description = "Губанова Елена Евгеньевна (пароль на " \
+                                     "zoom 125834)"
+            elif lesson_name == "Испанский язык" and lesson_day == 4:
                 lesson_location = "Дистанционно"
             else:
                 lesson_location = imported_data[lesson_day][lesson_id][3]  #
